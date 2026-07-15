@@ -13,6 +13,7 @@ import { useSettings } from "../hooks/useSettings";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { getShopId } from "../lib/shop";
+import { isTauri, showNotification } from "../lib/tauri";
 
 const pageColors = { Instagram: "#E4405F", WhatsApp: "#25D366", TikTok: "#000000", Google: "#4285F4", Facebook: "#1877F2", Direct: "#6b7280" };
 
@@ -86,6 +87,14 @@ export default function Overview() {
   useEffect(() => {
     supabase.rpc("cleanup_expired_shops").then(() => {}).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!isTauri() || !data?.lowStockCount) return;
+    showNotification(
+      "Low Stock Alert",
+      `${data.lowStockCount} product${data.lowStockCount > 1 ? "s" : ""} need${data.lowStockCount === 1 ? "s" : ""} restocking`
+    );
+  }, [data?.lowStockCount]);
 
   const chartData = buildChartData(data?.chartData, timeRange);
 

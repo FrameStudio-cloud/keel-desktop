@@ -1,0 +1,923 @@
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { useFocusTrap } from "../hooks/useFocusTrap";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+import fashionCatalogueWebp from "../assets/catalogue/zurifashion-catalogue-shot.webp";
+import fashionCataloguePng from "../assets/catalogue/zurifashion-catalogue-shot.png";
+import wixCatalogueWebp from "../assets/catalogue/wix-collection-shot.webp";
+import wixCataloguePng from "../assets/catalogue/wix-collection-shot.png";
+import electricalsCatalogueWebp from "../assets/catalogue/mini-electricals-shots.webp";
+import electricalsCataloguePng from "../assets/catalogue/mini-electricals-shots.png";
+import PictureImg from "../components/PictureImg";
+import { FaTiktok } from "react-icons/fa6";
+import {
+  FiPackage, FiTrendingUp,
+  FiChevronDown, FiMail, FiPhone, FiInstagram, FiGithub,
+  FiArrowRight, FiMenu, FiX, FiUserPlus, FiShield, FiCreditCard, FiMapPin,
+  FiMonitor, FiMessageSquare, FiHelpCircle, FiLayers, FiBriefcase, FiInfo, FiExternalLink
+} from "react-icons/fi";
+
+const howItWorks = [
+  { icon: FiUserPlus, title: "Create Account", desc: "Sign up with your email and shop name. No credit card needed — start for free in under a minute." },
+  { icon: FiPackage, title: "Add Products", desc: "Enter products manually, import in bulk, or scan barcodes with your phone camera. Variants, prices, and stock all in one place." },
+  { icon: FiTrendingUp, title: "Start Selling", desc: "Log sales, print receipts, and track revenue in real time. Built-in reports show you exactly where your business stands." },
+];
+
+const websiteShots = [
+  {
+    image: fashionCatalogueWebp,
+    fallback: fashionCataloguePng,
+    label: "Fashion Boutique",
+    desc: "Showcase your clothing line with a clean, browsable product grid.",
+  },
+  {
+    image: wixCatalogueWebp,
+    fallback: wixCataloguePng,
+    label: "General Store",
+    desc: "Display all your categories — groceries, household, and more.",
+  },
+  {
+    image: electricalsCatalogueWebp,
+    fallback: electricalsCataloguePng,
+    label: "Electronics Store",
+    desc: "List phones, accessories, and gadgets with variant options.",
+  },
+];
+
+const testimonials = [
+  { name: "Grace Mwangi", shop: "Owner, Electronics Shop, Thika", text: "Keel saved me hours of manual spreadsheet work. I can check stock levels from my phone and the low-stock alerts mean I never run out of popular items." },
+  { name: "James Kiprop", shop: "Owner, General Store, Nairobi", text: "The sales tracking is exactly what I needed. Profit reports at a glance, and the receipt printing keeps my records clean." },
+  { name: "Faith Wanjiku", shop: "Owner, Clothing Boutique, Mombasa", text: "I was managing everything on paper before Keel. Now I track inventory, log sales, and run my website — all from one place. The barcode scanning let me onboard my whole stock in an afternoon." },
+  { name: "Brian Otieno", shop: "Owner, Phone Accessories, Kisumu", text: "Simple, fast, and works on my phone. That's all I needed." },
+  { name: "Sarah Nyakio", shop: "Owner, Beauty Products, Nakuru", text: "I love the clean design. The setup wizard walked me through everything in minutes. I had my first sale logged before lunch." },
+  { name: "David Kamau", shop: "Owner, Hardware Store, Eldoret", text: "Stock management was a headache — notebooks, lost records. Keel centralised everything. Now the reports show me exactly what's making money and what's not." },
+];
+
+const faqs = [
+  { q: "What is Keel?", a: "Keel is a shop management dashboard for small businesses. It helps you track inventory, log sales, view reports, manage a website, and handle social media — all from one place." },
+  { q: "How much does it cost?", a: "Keel is free to use during our beta period. We'll announce pricing when we launch, but early users will get grandfathered into special rates." },
+  { q: "Can I manage multiple shops?", a: "Yes. Each shop gets its own dashboard, inventory, and settings. Sign in once and switch between your shops easily." },
+  { q: "Do I get a real website with Keel?", a: "Yes. Keel generates a live website for your shop with a product catalogue, promotional banners, business info page, image gallery, and a WhatsApp chat widget. Add or update products in your dashboard and they appear on your site instantly — no coding needed." },
+  { q: "Can customers buy directly from my website?", a: "Your Keel website currently works as a product showcase and catalogue. Customers browse your listings, see prices and variants, and contact you via WhatsApp or the contact info you provide. Direct checkout is coming soon." },
+  { q: "Can I use my own domain name?", a: "Yes. You can link a custom domain to your Keel website. Ask us for the DNS details after you've set up your shop." },
+  { q: "How do I add products quickly?", a: "Use your phone camera to scan barcodes — Keel auto-fills the product fields. Works for electronics and electricals categories. You can also add products one at a time or enter them manually." },
+  { q: "Does Keel help me communicate with customers?", a: "Yes. Your website comes with a WhatsApp chat widget so customers can message you directly. Keel also offers WhatsApp and Telegram bot integrations for automated customer interactions." },
+  { q: "Is my data secure?", a: "Absolutely. Your data is stored in Supabase (HIPAA-compliant infrastructure), encrypted in transit and at rest. We never share your data with third parties." },
+  { q: "How do I get started?", a: "Click 'Get Started' above, create your account with your email and shop name, and you'll be guided through a quick 5-minute setup wizard." },
+];
+
+const socialLinks = [
+  { icon: FiInstagram, href: "https://www.instagram.com/frame.studio12?igsh=ZWdieTk4ZGI4cjll", label: "Instagram" },
+  { icon: FaTiktok, href: "https://vm.tiktok.com/ZS9MrQG9sjXfK-jv0Wd/", label: "TikTok" },
+  { icon: FiGithub, href: "https://github.com/FrameStudio-cloud", label: "GitHub" },
+];
+
+const navLinks = [
+  { href: "#features", label: "Features", icon: FiLayers },
+  { href: "#how-it-works", label: "How It Works", icon: FiTrendingUp },
+  { href: "#website-integration", label: "Website", icon: FiMonitor },
+  { href: "#testimonials", label: "Testimonials", icon: FiMessageSquare },
+  { href: "#faq", label: "FAQ", icon: FiHelpCircle },
+  { href: "#contact", label: "Contact", icon: FiMail },
+];
+
+export default function Homepage() {
+  const [openFaq, setOpenFaq] = useState(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const navTrapRef = useFocusTrap(mobileNavOpen);
+  const marqueeRef = useRef(null);
+  const carouselRef = useRef(null);
+  const pageRef = useRef(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      gsap.set(".flashcard", { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" });
+    });
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const heroTl = gsap.timeline({ defaults: { ease: "power2.out" } });
+      heroTl
+        .fromTo(".hero-icon", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 })
+        .fromTo(".hero-headline", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, "-=0.2")
+        .fromTo(".hero-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.2")
+        .fromTo(".hero-cta", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.15 }, "-=0.2");
+
+      gsap.utils.toArray(".feature-row").forEach((row) => {
+        gsap.fromTo(row,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1, y: 0, duration: 0.7, ease: "power2.out",
+            scrollTrigger: {
+              trigger: row,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            }
+          }
+        );
+      });
+
+      const cards = gsap.utils.toArray(".flashcard");
+      const peekY = [12, 20, 28];
+      const peekScale = [1, 0.975, 0.95];
+      const tl = gsap.timeline({ repeat: -1 });
+      const cycle = 8;
+
+      cards.forEach((card, i) => {
+        const start = i * cycle;
+        tl.set(card, { y: peekY[i], scale: peekScale[i], opacity: 0.6, filter: "blur(0.5px)", zIndex: 1 }, 0);
+        tl.to(card, {
+          y: 0, scale: 1, opacity: 1, filter: "blur(0px)", zIndex: 10,
+          duration: 1.5, ease: "power2.out"
+        }, start);
+        tl.to(card, {
+          y: 80, scale: 0.92, opacity: 0, filter: "blur(1px)", zIndex: 11,
+          duration: 1.5, ease: "power2.in"
+        }, start + 6.5);
+        tl.set(card, { y: peekY[i], scale: peekScale[i], opacity: 0.6, filter: "blur(0.5px)", zIndex: 1 }, start + 8 - 0.01);
+      });
+    });
+
+    return () => mm.revert();
+  }, { scope: pageRef });
+
+  const scrollTestimonial = (index) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const cards = el.querySelectorAll(".testimonial-card");
+    if (cards[index]) {
+      cards[index].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      setCurrentTestimonial(index);
+    }
+  };
+
+  const handleTestimonialScroll = () => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const cards = el.querySelectorAll(".testimonial-card");
+    let closest = 0;
+    let minDist = Infinity;
+    const center = el.scrollLeft + el.offsetWidth / 2;
+    cards.forEach((card, i) => {
+      const dist = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = i;
+      }
+    });
+    setCurrentTestimonial(closest);
+  };
+
+  useEffect(() => {
+    const track = marqueeRef.current;
+    if (!track) return;
+    let rafId;
+    let scrollX = 0;
+    const half = track.scrollWidth / 2;
+
+    const animate = () => {
+      if (track.dataset.paused === "true") {
+        rafId = requestAnimationFrame(animate);
+        return;
+      }
+      scrollX += 1;
+      if (scrollX >= half) scrollX = 0;
+      track.scrollLeft = scrollX;
+      rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  return (
+    <>
+      <Helmet>
+        <title>Keel — Business Dashboard for African SMEs</title>
+        <meta name="description" content="Track inventory, manage sales, view reports, and grow your business — all from one clean dashboard. Built for Kenyan shop owners." />
+        <meta property="og:title" content="Keel — Business Dashboard for African SMEs" />
+        <meta property="og:description" content="Track inventory, manage sales, view reports, and grow your business — all from one clean dashboard." />
+        <meta property="og:url" content="https://keel.framestudio.co.ke/" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.map(({ q, a }) => ({
+              "@type": "Question",
+              "name": q,
+              "acceptedAnswer": { "@type": "Answer", "text": a }
+            }))
+          })}
+        </script>
+      </Helmet>
+      <style>{`
+@keyframes fade-slide-in { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+.nav-item { animation: fade-slide-in 0.3s ease-out both; }
+.flashcard { opacity: 0.6; filter: blur(0.5px); }
+`}</style>
+    <div ref={pageRef} className="min-h-screen bg-slate-100 dark:bg-[#1a1a2e] text-slate-900 dark:text-white">
+      {/* NAV */}
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#16213e]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 font-bold text-sm">
+            <img src="/keel-icon.webp" alt="Keel" className="w-7 h-7" />
+            Keel
+          </Link>
+
+          {/* Desktop nav */}
+          <div className="hidden sm:flex items-center gap-6 text-xs text-slate-600 dark:text-slate-400">
+            <a
+              href="#features"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              How It Works
+            </a>
+            <a
+              href="#website-integration"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Website
+            </a>
+            <a
+              href="#testimonials"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Testimonials
+            </a>
+            <a
+              href="#faq"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              FAQ
+            </a>
+            <a
+              href="#contact"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Contact
+            </a>
+            <Link
+              to="/login"
+              className="ml-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg text-xs transition-all"
+            >
+              Sign In
+            </Link>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            className="sm:hidden p-1 text-slate-600 dark:text-slate-400"
+            aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
+            {mobileNavOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+          </button>
+        </div>
+
+      </nav>
+
+      {/* Mobile nav overlay */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden" ref={navTrapRef}>
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileNavOpen(false)} />
+          <div className="relative z-10 bg-white dark:bg-[#16213e] h-full w-full flex flex-col px-6 pt-16 pb-8 overflow-y-auto">
+            <button
+              onClick={() => setMobileNavOpen(false)}
+              className="absolute top-5 right-6 p-1 text-slate-600 dark:text-slate-400"
+              aria-label="Close navigation"
+            >
+              <FiX size={22} />
+            </button>
+            <div className="mb-10">
+              <Link to="/" className="inline-flex items-center gap-2 font-bold text-sm">
+            <img src="/keel-icon.webp" alt="Keel" className="w-7 h-7" />
+                Keel
+              </Link>
+            </div>
+            <div className="flex-1 space-y-1">
+              {navLinks.map((link, i) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="nav-item flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all text-sm font-medium text-slate-700 dark:text-slate-300"
+                  style={{ animationDelay: `${i * 0.07}s` }}
+                >
+                  <link.icon className="text-blue-600 shrink-0" size={18} />
+                  {link.label}
+                </a>
+              ))}
+            </div>
+            <Link
+              to="/login"
+              onClick={() => setMobileNavOpen(false)}
+              className="block w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl text-center transition-all"
+            >
+              Sign In
+            </Link>
+            <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
+              Keel by Framestudio
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* HERO */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-16 sm:pt-28 sm:pb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          {/* Left */}
+          <div className="lg:col-span-5 text-center lg:text-left">
+            <img
+              src="/keel-icon.webp"
+              alt="Keel"
+              className="hero-icon w-16 h-16 mx-auto lg:mx-0 mb-6"
+            />
+            <h1 className="hero-headline text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+              Shop Management,{" "}
+              <span className="text-blue-600 dark:text-blue-400">
+                Simplified
+              </span>
+            </h1>
+            <p className="hero-subtitle mt-6 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed mx-auto lg:mx-0">
+              Track inventory, manage sales, view reports, and grow your
+              business — all from one clean dashboard. No complexity, no
+              clutter.
+            </p>
+            <div className="hero-cta mt-10 flex flex-col sm:flex-row items-center lg:justify-start gap-4">
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+              >
+                Get Started Free <FiArrowRight />
+              </Link>
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-8 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-medium rounded-xl text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
+              >
+                Sign In
+              </Link>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="lg:col-span-7 hidden md:block space-y-6">
+            <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden rotate-[2deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500">
+              <PictureImg
+                src="/Modern dashboard interface with metrics.png"
+                alt="Overview"
+                className="w-full h-86 object-cover"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden -rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500">
+                <PictureImg
+                  src="/Modern tech product dashboard mockup.png"
+                  alt="Inventory"
+                  className="w-full h-60 object-cover"
+                />
+              </div>
+              <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500">
+                <PictureImg
+                  src="/Payment summary dashboard widget.png"
+                  alt="Finance"
+                  className="w-full h-60 object-cover"
+                />
+              </div>
+            </div>
+            <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden -rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500">
+              <PictureImg
+                src="/Modern analytics dashboard with pastel accents.png"
+                alt="Reports"
+                className="w-full h-86 object-cover"
+              />
+            </div>
+          </div>
+          {/* Mobile fallback */}
+          <div className="md:hidden space-y-3 mt-6">
+            <div className="rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden">
+              <PictureImg
+                src="/Modern dashboard interface with metrics.png"
+                alt="Dashboard overview"
+                className="w-full h-48 object-cover"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden">
+                <PictureImg
+                  src="/Modern tech product dashboard mockup.png"
+                  alt="Inventory view"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+              <div className="rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden">
+                <PictureImg
+                  src="/Payment summary dashboard widget.png"
+                  alt="Finance view"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section
+        id="features"
+        className="max-w-6xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24"
+      >
+        <div className="text-center mb-16">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">
+            Keep everything in one place
+          </h2>
+          <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
+            Everything you need to run your shop.
+          </p>
+        </div>
+
+          <div className="space-y-20">
+            <div className="feature-row grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden -rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500">
+                <PictureImg
+                  src="/Modern tech product dashboard mockup.png"
+                  alt="Inventory"
+                  className="w-full h-auto object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <h3 className="text-xl sm:text-2xl font-extrabold mb-3">
+                  Inventory Management
+                </h3>
+                <p className="text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Never lose track of stock again.
+                </p>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Track inventory in real time, monitor stock levels, and manage
+                  products from one dashboard.
+                </p>
+              </div>
+            </div>
+
+            <div className="feature-row grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500 lg:order-last">
+                <PictureImg
+                  src="/Payment summary dashboard widget.png"
+                  alt="Financial Tracking"
+                  className="w-full h-auto object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="lg:order-first">
+                <h3 className="text-xl sm:text-2xl font-extrabold mb-3">
+                  Financial Tracking
+                </h3>
+                <p className="text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Know exactly where every shilling goes.
+                </p>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Track revenue, expenses, cash, bank and M-Pesa payments from a
+                  single view.
+                </p>
+              </div>
+            </div>
+
+            <div className="feature-row grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden -rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500">
+                <PictureImg
+                  src="/Modern analytics dashboard with pastel accents.png"
+                  alt="Reports"
+                  className="w-full h-auto object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <h3 className="text-xl sm:text-2xl font-extrabold mb-3">
+                  Reports &amp; Insights
+                </h3>
+                <p className="text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Make smarter business decisions.
+                </p>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                  View profit trends, performance reports, and business growth in
+                  seconds.
+                </p>
+              </div>
+            </div>
+
+            <div className="feature-row grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              <div className="rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#16213e] overflow-hidden rotate-[1deg] hover:rotate-0 hover:-translate-y-2 transition-all duration-500 lg:order-last">
+                <PictureImg
+                  src="/Modern dashboard interface with metrics.png"
+                  alt="Sales"
+                  className="w-full h-auto object-cover"
+                  loading="lazy"
+                />
+              </div>
+            <div className="lg:order-first">
+              <h3 className="text-xl sm:text-2xl font-extrabold mb-3">
+                Sales Management
+              </h3>
+              <p className="text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Record every sale instantly.
+              </p>
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                Generate receipts, track transactions, and monitor daily
+                performance.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS — Flashcard stack */}
+      <section
+        id="how-it-works"
+        className="max-w-6xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24"
+      >
+        <div className="text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">How it works</h2>
+          <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
+            Three steps to get your shop online and running.
+          </p>
+        </div>
+
+        <div className="relative h-[270px] sm:h-[240px]">
+          {howItWorks.map(({ icon: Icon, title, desc }, i) => (
+            <div
+              key={title}
+              className="flashcard absolute inset-x-0"
+              style={{
+                "--peek-y": `${12 + i * 8}px`,
+                "--peek-scale": `${1 - i * 0.025}`,
+              }}
+            >
+              <div className="bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-2xl p-6 text-center">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Icon className="text-blue-600 dark:text-blue-400 text-lg" />
+                </div>
+                <h3 className="font-bold text-sm mb-2">{title}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed sm:max-w-xs mx-auto">
+                  {desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WEBSITE INTEGRATION */}
+      <section
+        id="website-integration"
+        className="max-w-6xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">
+            Your shop, now online — managed from one place
+          </h2>
+          <p className="mt-2 text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
+            Keel powers your entire website. Publish products, run banners, set
+            business hours, add a WhatsApp chat widget — all from your
+            dashboard. No coding, no separate tools.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+            <span className="text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              Live product catalogue
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              WhatsApp chat widget
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              Custom banners
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              Business info page
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile: infinite marquee loop (JS-powered) */}
+        <div className="sm:hidden overflow-hidden pb-2 select-none">
+          <div
+            ref={marqueeRef}
+            className="flex gap-4 overflow-hidden"
+            onMouseEnter={() => {
+              if (marqueeRef.current)
+                marqueeRef.current.dataset.paused = "true";
+            }}
+            onMouseLeave={() => {
+              if (marqueeRef.current)
+                marqueeRef.current.dataset.paused = "false";
+            }}
+            onTouchStart={() => {
+              if (marqueeRef.current)
+                marqueeRef.current.dataset.paused = "true";
+            }}
+            onTouchEnd={() => {
+              if (marqueeRef.current)
+                marqueeRef.current.dataset.paused = "false";
+            }}
+          >
+            {[...websiteShots, ...websiteShots].map(
+              ({ image, label, desc, fallback }, i) => (
+                <div
+                  key={`${label}-${i}`}
+                  className="w-[80vw] flex-shrink-0 bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden"
+                >
+                  <PictureImg src={image} fallback={fallback} alt={label} className="w-full" loading="lazy" />
+                  <div className="p-4">
+                    <h3 className="font-bold text-sm mb-0.5">{label}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {desc}
+                    </p>
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+
+        <div className="hidden sm:grid sm:grid-cols-3 gap-4">
+          {websiteShots.map(({ image, label, desc, fallback }) => (
+            <div
+              key={label}
+              className="bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden"
+            >
+              <PictureImg src={image} fallback={fallback} alt={label} className="w-full" loading="lazy" />
+              <div className="p-4">
+                <h3 className="font-bold text-sm mb-0.5">{label}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section
+        id="testimonials"
+        className="max-w-6xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24"
+      >
+        <div className="text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">
+            People just like you are already using Keel
+          </h2>
+          <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
+            Real shop owners, real results.
+          </p>
+        </div>
+
+        <div className="relative">
+          <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+            <div
+              ref={carouselRef}
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              onScroll={handleTestimonialScroll}
+            >
+              {testimonials.map(({ name, shop, text }) => {
+                const initials = name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2);
+                return (
+                  <div
+                    key={name}
+                    className="testimonial-card snap-start shrink-0 w-[85vw] sm:w-[360px] bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-2xl p-5"
+                  >
+                    <svg
+                      className="w-6 h-6 text-blue-200 dark:text-blue-800 mb-3"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                    </svg>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                      {text}
+                    </p>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                          {initials}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">{name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {shop}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-1 mt-2">
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollTestimonial(i)}
+                className={`flex items-center justify-center h-10 px-1 rounded-full transition-all ${
+                  currentTestimonial === i
+                    ? "w-6 bg-blue-600"
+                    : "w-2 bg-transparent"
+                }`}
+                aria-label={`Testimonial ${i + 1} of ${testimonials.length}`}
+              >
+                <span className={`block h-2 rounded-full transition-all ${
+                  currentTestimonial === i
+                    ? "w-full bg-blue-600"
+                    : "w-2 bg-slate-300 dark:bg-slate-600"
+                }`} />
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section
+        id="faq"
+        className="max-w-3xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">
+            Frequently asked questions
+          </h2>
+        </div>
+        <div className="space-y-2">
+          {faqs.map(({ q, a }, i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden"
+            >
+              <button
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                aria-expanded={openFaq === i}
+                aria-controls={`faq-panel-${i}`}
+                id={`faq-btn-${i}`}
+                className="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-semibold hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors"
+              >
+                {q}
+                <FiChevronDown
+                  className={`flex-shrink-0 text-slate-400 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
+                />
+              </button>
+              {openFaq === i && (
+                <div
+                  id={`faq-panel-${i}`}
+                  role="region"
+                  aria-labelledby={`faq-btn-${i}`}
+                  className="px-5 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200 dark:border-white/10 pt-3"
+                >
+                  {a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section
+        id="contact"
+        className="max-w-3xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24"
+      >
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">Get in touch</h2>
+          <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
+            Have a question or feedback? We'd love to hear from you.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href="mailto:hello@keel.app"
+            className="flex items-center gap-3 bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-xl px-6 py-3 text-sm font-medium hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all w-full sm:w-auto justify-center"
+          >
+            <FiMail className="text-blue-600 dark:text-blue-400" />
+            hello@keel.app
+          </a>
+          <a
+            href="https://wa.me/254799451882"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-xl px-6 py-3 text-sm font-medium hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all w-full sm:w-auto justify-center"
+          >
+            <FiPhone className="text-green-600 dark:text-green-400" />
+            WhatsApp
+          </a>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24 text-center">
+        <div className="bg-white dark:bg-[#16213e] border border-slate-200 dark:border-white/10 rounded-2xl p-6 sm:p-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">
+            Ready to streamline your shop?
+          </h2>
+          <p className="text-base text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
+            Join other Kenyan shop owners using Keel to manage smarter, not
+            harder.
+          </p>
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-blue-600/20"
+          >
+            Get Started Free <FiArrowRight />
+          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              <FiShield className="text-blue-600 dark:text-blue-400" /> Free to
+              start
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              <FiCreditCard className="text-blue-600 dark:text-blue-400" /> No
+              credit card
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              <FiShield className="text-blue-600 dark:text-blue-400" /> Secure
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+              <FiMapPin className="text-blue-600 dark:text-blue-400" /> Built
+              for Kenya
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-slate-200 dark:border-white/10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500">
+              <img src="/keel-icon.webp" alt="Keel" className="w-5 h-5" />
+              &copy; {new Date().getFullYear()} Keel. All rights reserved.
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-500">
+              <Link
+                to="/features"
+                className="inline-flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiLayers size={12} />
+                Features
+              </Link>
+              <Link
+                to="/use-cases"
+                className="inline-flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiBriefcase size={12} />
+                Use Cases
+              </Link>
+              <Link
+                to="/about"
+                className="inline-flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiInfo size={12} />
+                About
+              </Link>
+              <a
+                href="https://framestudio.co.ke"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiExternalLink size={12} />
+                Made by Framestudio
+              </a>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {socialLinks.map(({ icon: Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                aria-label={label}
+                className="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-500/30 transition-all"
+              >
+                <Icon size={15} />
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
+    </div>
+    </>
+  );
+}

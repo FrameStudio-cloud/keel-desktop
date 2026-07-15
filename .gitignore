@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+
+.vercel
+.env*
+.playwright-mcp/
+src-tauri/target/

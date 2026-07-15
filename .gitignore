@@ -1,8 +1,9 @@
 node_modules
 dist
 .env
-
-.vercel
 .env*
+.vercel
 .playwright-mcp/
 src-tauri/target/
+supabase/.temp/
+tmp/

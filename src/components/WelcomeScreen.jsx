@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set(splashRef.current, { display: "none" });
+        gsap.set(splashRef.current, { display: "none", pointerEvents: "none" });
         gsap.set(welcomeRef.current, { opacity: 1 });
         gsap.set(".welcome-icon, .welcome-title, .welcome-desc, .welcome-btn, .welcome-or, .welcome-google, .welcome-version", { opacity: 1, y: 0 });
       });
@@ -27,7 +27,7 @@ export default function WelcomeScreen() {
         tl.fromTo(".splash-icon", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.7)" })
           .to(".splash-icon", { boxShadow: "0 0 40px rgba(37, 99, 235, 0.4)", duration: 0.5, ease: "sine.inOut" }, "-=0.1")
           .to(".splash-icon", { boxShadow: "0 0 20px rgba(37, 99, 235, 0.2)", duration: 0.5, ease: "sine.inOut" })
-          .to(splashRef.current, { opacity: 0, duration: 0.35, ease: "power2.in" }, "+=0.2")
+          .to(splashRef.current, { opacity: 0, pointerEvents: "none", duration: 0.35, ease: "power2.in" }, "+=0.2")
           .to(welcomeRef.current, { opacity: 1, duration: 0.2 }, "-=0.1")
           .fromTo(".welcome-icon", { opacity: 0, scale: 0.6, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.1")
           .fromTo(".welcome-title", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, "-=0.2")

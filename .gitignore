@@ -8,3 +8,5 @@ src-tauri/target/
 supabase/.temp/
 tmp/
 updater.key
+~/.tauri/
+.tauri/

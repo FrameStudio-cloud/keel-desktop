@@ -13,35 +13,34 @@ export default function WelcomeScreen() {
   const welcomeRef = useRef(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
 
-    mm.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set(splashRef.current, { display: "none" });
-      gsap.set(welcomeRef.current, { opacity: 1 });
-      gsap.set(".welcome-icon, .welcome-title, .welcome-desc, .welcome-btn, .welcome-or, .welcome-google, .welcome-version", { opacity: 1, y: 0 });
-    });
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(splashRef.current, { display: "none" });
+        gsap.set(welcomeRef.current, { opacity: 1 });
+        gsap.set(".welcome-icon, .welcome-title, .welcome-desc, .welcome-btn, .welcome-or, .welcome-google, .welcome-version", { opacity: 1, y: 0 });
+      });
 
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const tl = gsap.timeline();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const tl = gsap.timeline();
+        tl.fromTo(".splash-icon", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.7)" })
+          .to(".splash-icon", { boxShadow: "0 0 40px rgba(37, 99, 235, 0.4)", duration: 0.5, ease: "sine.inOut" }, "-=0.1")
+          .to(".splash-icon", { boxShadow: "0 0 20px rgba(37, 99, 235, 0.2)", duration: 0.5, ease: "sine.inOut" })
+          .to(splashRef.current, { opacity: 0, duration: 0.35, ease: "power2.in" }, "+=0.2")
+          .to(welcomeRef.current, { opacity: 1, duration: 0.2 }, "-=0.1")
+          .fromTo(".welcome-icon", { opacity: 0, scale: 0.6, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.1")
+          .fromTo(".welcome-title", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, "-=0.2")
+          .fromTo(".welcome-desc", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, "-=0.2")
+          .fromTo(".welcome-btn", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.1, ease: "power2.out" }, "-=0.15")
+          .fromTo(".welcome-or", { opacity: 0 }, { opacity: 1, duration: 0.3 }, "-=0.1")
+          .fromTo(".welcome-google", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, "-=0.1")
+          .fromTo(".welcome-version", { opacity: 0 }, { opacity: 1, duration: 0.3 }, "-=0.1");
+      });
+    }, containerRef);
 
-      // Splash: icon scales in
-      tl.fromTo(".splash-icon", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.7)" })
-        // Splash: hold with subtle glow pulse
-        .to(".splash-icon", { boxShadow: "0 0 40px rgba(37, 99, 235, 0.4)", duration: 0.5, ease: "sine.inOut" }, "-=0.1")
-        .to(".splash-icon", { boxShadow: "0 0 20px rgba(37, 99, 235, 0.2)", duration: 0.5, ease: "sine.inOut" })
-        // Splash: fade out
-        .to(splashRef.current, { opacity: 0, duration: 0.35, ease: "power2.in" }, "+=0.2")
-        // Welcome: stagger elements in
-        .to(welcomeRef.current, { opacity: 1, duration: 0.2 }, "-=0.1")
-        .fromTo(".welcome-icon", { opacity: 0, scale: 0.6, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.1")
-        .fromTo(".welcome-title", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, "-=0.2")
-        .fromTo(".welcome-desc", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, "-=0.2")
-        .fromTo(".welcome-btn", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.1, ease: "power2.out" }, "-=0.15")
-        .fromTo(".welcome-or", { opacity: 0 }, { opacity: 1, duration: 0.3 }, "-=0.1")
-        .fromTo(".welcome-google", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, "-=0.1")
-        .fromTo(".welcome-version", { opacity: 0 }, { opacity: 1, duration: 0.3 }, "-=0.1");
-    });
-  }, { scope: containerRef });
+    return () => ctx.revert();
+  });
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-gradient-to-br from-[#0f0f23] via-[#141130] to-[#1a1a2e] flex items-center justify-center p-6 overflow-hidden">

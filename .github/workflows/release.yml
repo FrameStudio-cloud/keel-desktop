@@ -35,7 +35,7 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "Keel v${{ github.ref_name }}"
+          releaseName: "Keel ${{ github.ref_name }}"
           releaseBody: "See assets to download and install."
           releaseDraft: true
           includeUpdaterJson: true

@@ -1,6 +1,7 @@
-import { lazy, Suspense, useContext, useEffect } from "react";
+import { lazy, Suspense, useContext, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import WelcomeScreen from "./components/WelcomeScreen";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import posthog from "./lib/posthog";
 
 function ScrollToTop() {
@@ -84,7 +85,8 @@ function HomeOrDashboard() {
   if (window.location.hash && window.location.hash.includes("access_token=")) {
     return <Loading />;
   }
-  return <Homepage />;
+  const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+  return isTauri ? <WelcomeScreen /> : <Homepage />;
 }
 
 function AppRoutes() {
@@ -126,17 +128,27 @@ function AppRoutes() {
   );
 }
 
+function RouterProvider({ children }) {
+  const [isTauri] = useState(() => typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window);
+  const Router = isTauri ? HashRouter : BrowserRouter;
+  return (
+    <Router>
+      {children}
+    </Router>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SettingsProvider>
-          <BrowserRouter>
+          <RouterProvider>
             <ScrollToTop />
             <PostHogPageView />
             <WebUpdateChecker />
             <AppRoutes />
-          </BrowserRouter>
+          </RouterProvider>
         </SettingsProvider>
       </AuthProvider>
     </QueryClientProvider>

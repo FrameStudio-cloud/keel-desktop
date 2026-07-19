@@ -12,7 +12,10 @@ export default function Login() {
   const [mode, setMode] = useState(() => {
     const hash = window.location.hash.replace(/^#/, "");
     const params = new URLSearchParams(hash);
-    return params.get("type") === "recovery" ? "reset_password" : "login";
+    if (params.get("type") === "recovery") return "reset_password";
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get("signup") === "1") return "signup";
+    return "login";
   });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

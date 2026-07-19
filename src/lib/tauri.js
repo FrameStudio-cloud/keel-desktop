@@ -1,5 +1,5 @@
 export function isTauri() {
-  return typeof window !== 'undefined' && window.__TAURI__ !== undefined;
+  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 }
 
 export async function showNotification(title, body) {

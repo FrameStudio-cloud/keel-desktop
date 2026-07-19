@@ -47,7 +47,7 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY2QzMxQkYwMUExQzMxN0UKUldSK01Sd2E4QnZEOXJtaXduU1JJMzJya2xrdEdLOHA2eWxZSklPQyszZGMrdGo3WUpRdlpzK00K",
-      "endpoints": ["https://github.com/FrameStudio-cloud/keel-desktop/releases/latest/download/updater.json"]
+      "endpoints": ["https://github.com/FrameStudio-cloud/keel-desktop/releases/latest/download/latest.json"]
     }
   }
 }
